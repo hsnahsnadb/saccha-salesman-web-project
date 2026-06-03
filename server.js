@@ -12,7 +12,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Products data file
 const DATA_FILE = path.join(__dirname, 'products.json');
 
 function loadProducts() {
@@ -28,7 +27,6 @@ function saveProducts(products) {
     fs.writeFileSync(DATA_FILE, JSON.stringify(products, null, 2));
 }
 
-// Default products if file doesn't exist
 if (!fs.existsSync(DATA_FILE)) {
     saveProducts([
         {
@@ -54,27 +52,24 @@ if (!fs.existsSync(DATA_FILE)) {
             bestFor: "Battery-focused users", bestPrice: "₹10,499 (Flipkart)",
             stores: ["Flipkart", "Motorola Store", "Amazon"],
             specs: { display: "6.5\" 90Hz IPS LCD", processor: "Helio G88", ram: "6GB", storage: "128GB", battery: "6000mAh, 33W", camera: "50MP + 2MP | 16MP Front" }
-        },
-        {
-            id: 4, name: "Samsung Galaxy F17e 5G", category: "phone", price: 15999, brand: "Samsung", budget: "low",
-            image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=400&fit=crop",
-            rating: 4.5, whyBest: "Best Samsung budget 5G. Exynos 1330, 50MP OIS, 6000mAh. 4 years updates.",
-            bestFor: "Samsung fans & camera lovers", bestPrice: "₹15,499 (Samsung Store)",
-            stores: ["Samsung.com", "Amazon", "Flipkart", "Croma"],
-            specs: { display: "6.6\" 90Hz PLS LCD", processor: "Exynos 1330 5G", ram: "6GB/8GB", storage: "128GB", battery: "6000mAh, 25W", camera: "50MP OIS + 5MP | 13MP Front" }
-        },
-        {
-            id: 5, name: "POCO M7 Pro 5G", category: "phone", price: 16999, brand: "POCO", budget: "low",
-            image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop",
-            rating: 4.5, whyBest: "Best performance under ₹17K. Snapdragon 7s Gen 2, 120Hz AMOLED, 67W charging.",
-            bestFor: "Performance enthusiasts", bestPrice: "₹16,499 (Flipkart)",
-            stores: ["Flipkart", "POCO Store", "Amazon"],
-            specs: { display: "6.67\" 120Hz AMOLED", processor: "Snapdragon 7s Gen 2 5G", ram: "8GB", storage: "128GB/256GB", battery: "5100mAh, 67W", camera: "64MP OIS + 8MP + 2MP | 16MP Front" }
         }
     ]);
 }
 
-// API Routes
+// ============ MAIN ROUTES ============
+
+// Home page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Admin page - THIS WAS MISSING
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// ============ API ROUTES ============
+
 app.get('/api/products', (req, res) => {
     let products = loadProducts();
     const { category, budget, search } = req.query;
@@ -128,5 +123,10 @@ app.delete('/api/products/:id', (req, res) => {
 });
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+// 404 fallback
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
