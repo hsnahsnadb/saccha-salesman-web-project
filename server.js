@@ -1,18 +1,52 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Admin credentials
+// Admin credentials - hardcoded for reliability
 const ADMIN_USER = 'admin';
 const ADMIN_PASSWORD = 'admin123';
 
-// Store login tokens
-const sessions = {};
+// Use file-based sessions so they survive server restarts
+const SESSIONS_FILE = path.join(__dirname, 'sessions.json');
+
+// Load sessions from file
+function loadSessions() {
+    try {
+        if (fs.existsSync(SESSIONS_FILE)) {
+            const data = JSON.parse(fs.readFileSync(SESSIONS_FILE, 'utf8'));
+            // Clean expired sessions (older than 24 hours)
+            const now = Date.now();
+            const valid = {};
+            for (const [key, val] of Object.entries(data)) {
+                if (now - val.time < 24 * 60 * 60 * 1000) {
+                    valid[key] = val;
+                }
+            }
+            return valid;
+        }
+    } catch (e) {}
+    return {};
+}
+
+// Save sessions to file
+function saveSessions(sessions) {
+    try {
+        fs.writeFileSync(SESSIONS_FILE, JSON.stringify(sessions, null, 2));
+    } catch (e) {
+        console.error('Failed to save sessions:', e.message);
+    }
+}
+
+// Initialize sessions
+let sessions = loadSessions();
+
+// Save sessions every 5 minutes
+setInterval(() => saveSessions(sessions), 5 * 60 * 1000);
 
 app.use(cors());
 app.use(express.json());
@@ -20,7 +54,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const DATA_FILE = path.join(__dirname, 'products.json');
 
-// Helper functions
 function loadProducts() {
     try {
         if (fs.existsSync(DATA_FILE)) {
@@ -34,7 +67,7 @@ function saveProducts(products) {
     fs.writeFileSync(DATA_FILE, JSON.stringify(products, null, 2));
 }
 
-// Default products
+// Initialize default products if file doesn't exist
 if (!fs.existsSync(DATA_FILE)) {
     saveProducts([
         {
@@ -70,50 +103,65 @@ if (!fs.existsSync(DATA_FILE)) {
     ]);
 }
 
-// ============ LOGIN ROUTE ============
+// ============ LOGIN ============
 app.post('/api/auth/login', (req, res) => {
     const { username, password } = req.body;
-    console.log('Login attempt:', username, password); // Debug
     
     if (username === ADMIN_USER && password === ADMIN_PASSWORD) {
-        const token = Date.now().toString(36) + Math.random().toString(36);
-        sessions[token] = { username, time: Date.now() };
-        console.log('Login success, token:', token); // Debug
+        // Generate a permanent-like token
+        const token = crypto.randomBytes(32).toString('hex');
+        sessions[token] = {
+            username: ADMIN_USER,
+            role: 'admin',
+            time: Date.now()
+        };
+        
+        // Save sessions to file immediately
+        saveSessions(sessions);
         
         return res.json({
             success: true,
             token: token,
-            user: { username: 'admin', role: 'admin' },
+            user: { username: ADMIN_USER, role: 'admin' },
             message: 'Login successful!'
         });
     }
     
-    console.log('Login failed'); // Debug
     res.status(401).json({ success: false, message: 'Invalid username or password' });
 });
 
-// Check token
+// ============ CHECK AUTH ============
 app.get('/api/auth/check', (req, res) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
+    
     if (token && sessions[token]) {
-        return res.json({ success: true });
+        // Check if session is not expired (24 hours)
+        if (Date.now() - sessions[token].time < 24 * 60 * 60 * 1000) {
+            return res.json({ success: true, user: sessions[token] });
+        }
+        // Remove expired session
+        delete sessions[token];
+        saveSessions(sessions);
     }
-    res.status(401).json({ success: false });
+    
+    res.status(401).json({ success: false, message: 'Session expired or invalid' });
 });
 
-// Logout
+// ============ LOGOUT ============
 app.post('/api/auth/logout', (req, res) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    if (token) delete sessions[token];
-    res.json({ success: true });
+    if (token && sessions[token]) {
+        delete sessions[token];
+        saveSessions(sessions);
+    }
+    res.json({ success: true, message: 'Logged out' });
 });
 
-// ============ PRODUCT API ============
+// ============ PRODUCTS API ============
 
-// Get all products
 app.get('/api/products', (req, res) => {
     let products = loadProducts();
-    const { category, budget, search, limit = 100 } = req.query;
+    const { category, budget, search } = req.query;
     
     if (category && category !== 'all') products = products.filter(p => p.category === category);
     if (budget && budget !== 'all') products = products.filter(p => p.budget === budget);
@@ -122,11 +170,9 @@ app.get('/api/products', (req, res) => {
         products = products.filter(p => p.name.toLowerCase().includes(s) || p.brand.toLowerCase().includes(s));
     }
     
-    products = products.slice(0, parseInt(limit));
     res.json({ success: true, data: products, count: products.length });
 });
 
-// Get stats
 app.get('/api/stats', (req, res) => {
     const products = loadProducts();
     const cats = [...new Set(products.map(p => p.category))];
@@ -137,35 +183,34 @@ app.get('/api/stats', (req, res) => {
     
     res.json({
         success: true,
-        data: {
-            totalProducts: products.length,
-            activeProducts: active,
-            featuredProducts: featured,
-            categories: cats.length,
-            categoryList: cats,
-            averageRating: avgRating,
-            totalViews: totalViews
-        }
+        data: { totalProducts: products.length, activeProducts: active, featuredProducts: featured, categories: cats.length, categoryList: cats, averageRating: avgRating, totalViews }
     });
 });
 
-// Get settings
 app.get('/api/settings', (req, res) => {
     res.json({ success: true, data: { siteName: 'Saccha Salesman', updateFrequency: 10 } });
 });
 
-// Update settings
 app.put('/api/settings', (req, res) => {
     res.json({ success: true, message: 'Settings saved!' });
 });
 
-// Add product (protected)
-app.post('/api/products', (req, res) => {
+// ============ PROTECTED ROUTES ============
+
+function requireAuth(req, res, next) {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token || !sessions[token]) {
         return res.status(401).json({ success: false, message: 'Please login first' });
     }
-    
+    if (Date.now() - sessions[token].time > 24 * 60 * 60 * 1000) {
+        delete sessions[token];
+        saveSessions(sessions);
+        return res.status(401).json({ success: false, message: 'Session expired' });
+    }
+    next();
+}
+
+app.post('/api/products', requireAuth, (req, res) => {
     const products = loadProducts();
     const newProduct = {
         id: Date.now(),
@@ -179,45 +224,25 @@ app.post('/api/products', (req, res) => {
     res.status(201).json({ success: true, data: newProduct, message: 'Product added!' });
 });
 
-// Update product (protected)
-app.put('/api/products/:id', (req, res) => {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token || !sessions[token]) {
-        return res.status(401).json({ success: false, message: 'Please login first' });
-    }
-    
+app.put('/api/products/:id', requireAuth, (req, res) => {
     const products = loadProducts();
     const index = products.findIndex(p => p.id === parseInt(req.params.id));
     if (index === -1) return res.status(404).json({ success: false, message: 'Not found' });
-    
     products[index] = { ...products[index], ...req.body, id: products[index].id };
     saveProducts(products);
     res.json({ success: true, data: products[index], message: 'Updated!' });
 });
 
-// Toggle product active/inactive
-app.patch('/api/products/:id/toggle', (req, res) => {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token || !sessions[token]) {
-        return res.status(401).json({ success: false, message: 'Please login first' });
-    }
-    
+app.patch('/api/products/:id/toggle', requireAuth, (req, res) => {
     const products = loadProducts();
     const product = products.find(p => p.id === parseInt(req.params.id));
     if (!product) return res.status(404).json({ success: false, message: 'Not found' });
-    
     product.active = !product.active;
     saveProducts(products);
     res.json({ success: true, data: product });
 });
 
-// Delete product (protected)
-app.delete('/api/products/:id', (req, res) => {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token || !sessions[token]) {
-        return res.status(401).json({ success: false, message: 'Please login first' });
-    }
-    
+app.delete('/api/products/:id', requireAuth, (req, res) => {
     let products = loadProducts();
     products = products.filter(p => p.id !== parseInt(req.params.id));
     saveProducts(products);
@@ -225,11 +250,29 @@ app.delete('/api/products/:id', (req, res) => {
 });
 
 // Health check
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/health', (req, res) => res.json({ status: 'ok', sessions: Object.keys(sessions).length }));
 
 // Serve pages
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
-// Start
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// 404
+app.use((req, res) => res.status(404).json({ error: 'Not found' }));
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`🔐 Admin: admin / admin123`);
+    console.log(`📁 Sessions file: ${SESSIONS_FILE}`);
+});
+
+// Save sessions on exit
+process.on('SIGTERM', () => {
+    saveSessions(sessions);
+    process.exit(0);
+});
+
+process.on('SIGINT', () => {
+    saveSessions(sessions);
+    process.exit(0);
+});
