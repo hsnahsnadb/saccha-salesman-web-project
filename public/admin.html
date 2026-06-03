@@ -1,82 +1,533 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Admin Panel | Saccha Salesman</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | SACCHA SALESMAN</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root{--primary:#2563eb}
-        body{background:#f8fafc;font-family:'Inter',sans-serif}
-        .sidebar{width:250px;min-height:100vh;background:#fff;border-right:1px solid #e5e7eb;position:fixed;left:0;top:0}
-        .sidebar a{display:flex;align-items:center;gap:10px;padding:12px 20px;color:#475569;text-decoration:none;font-weight:500;border-radius:12px;margin:4px 12px;font-size:14px;transition:all .2s}
-        .sidebar a:hover,.sidebar a.active{background:#eff6ff;color:var(--primary)}
-        .main{margin-left:250px;padding:30px}
-        .stat-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e5e7eb}
-        .tab-content{display:none}
-        .tab-content.active{display:block}
-        table th{font-size:12px;text-transform:uppercase;color:#64748b;font-weight:600;background:#f8fafc}
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --indigo: #4f46e5;
+            --purple: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light: #f8fafc;
+            --sidebar-width: 280px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; overflow-x: hidden; }
+        
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        .login-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 3rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-icon {
+            width: 70px; height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--indigo));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(37,99,235,0.3);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            z-index: 100;
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+        .sidebar-logo {
+            padding: 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar-logo-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, var(--primary), var(--indigo));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+        .sidebar-nav { padding: 1rem; }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            border-radius: 14px;
+            margin-bottom: 4px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .sidebar-link:hover { background: #eff6ff; color: var(--primary); }
+        .sidebar-link.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(37,99,235,0.3); }
+        .sidebar-link i { width: 20px; text-align: center; font-size: 16px; }
+        .sidebar-badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .top-bar h1 { font-size: 1.8rem; font-weight: 800; color: var(--dark); }
+        
+        /* Stat Cards */
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid #f1f5f9;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 15px 40px rgba(0,0,0,0.08); }
+        .stat-card .icon {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .stat-card .value { font-size: 2rem; font-weight: 900; color: var(--dark); }
+        .stat-card .label { color: var(--gray); font-size: 0.85rem; font-weight: 500; margin-top: 4px; }
+        .stat-card .trend { font-size: 0.8rem; font-weight: 600; }
+        .trend-up { color: var(--success); }
+        
+        /* Cards */
+        .card-custom {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
+        }
+        .card-header-custom {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-body-custom { padding: 1.5rem; }
+        
+        /* Table */
+        .table-custom th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray);
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            background: #f8fafc;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .table-custom td {
+            padding: 1rem 1.25rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .table-custom tr:hover td { background: #f8fafc; }
+        
+        /* Buttons */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary), var(--indigo));
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37,99,235,0.3); color: white; }
+        
+        .btn-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        .btn-icon:hover { transform: scale(1.1); }
+        
+        /* Status Badge */
+        .status-active { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-inactive { background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        
+        /* Form */
+        .form-control-custom, .form-select-custom {
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: var(--transition);
+            background: white;
+        }
+        .form-control-custom:focus, .form-select-custom:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+            outline: none;
+        }
+        
+        /* Modal */
+        .modal-custom .modal-content {
+            border-radius: 24px;
+            border: none;
+            overflow: hidden;
+        }
+        .modal-custom .modal-header {
+            background: linear-gradient(135deg, var(--primary), var(--indigo));
+            color: white;
+            border: none;
+        }
+        
+        /* Tabs */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fade { animation: fadeIn 0.5s ease; }
+        
+        /* Toast */
+        .toast-custom {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+        }
+        
+        /* Search */
+        .search-box {
+            position: relative;
+        }
+        .search-box input {
+            padding-left: 40px;
+            border-radius: 14px;
+            border: 2px solid #e5e7eb;
+            font-size: 14px;
+        }
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar d-flex flex-column p-3">
-        <div class="d-flex align-items-center gap-2 px-3 mb-4 mt-2">
-            <div class="rounded-2 d-flex align-items-center justify-content-center" style="width:36px;height:36px;background:var(--primary)"><i class="fas fa-shield-haltered text-white"></i></div>
-            <div><strong class="text-primary">SACCHA</strong><br><small class="text-muted">Admin Panel</small></div>
-        </div>
-        <a href="#" class="active" onclick="showTab('dashboard',this)"><i class="fas fa-th-large"></i> Dashboard</a>
-        <a href="#" onclick="showTab('products',this)"><i class="fas fa-mobile-alt"></i> All Products</a>
-        <a href="#" onclick="showTab('add',this)"><i class="fas fa-plus-circle"></i> Add Product</a>
-        <div class="mt-auto px-3 py-3 border-top"><a href="/" class="text-muted text-decoration-none small"><i class="fas fa-arrow-left me-1"></i> View Website</a></div>
-    </div>
-
-    <div class="main">
-        <div id="dashboard-tab" class="tab-content active">
-            <h4 class="fw-bold mb-4">📊 Dashboard</h4>
-            <div class="row g-3 mb-4">
-                <div class="col-md-3"><div class="stat-card"><h2 class="fw-black text-primary mb-0" id="totalProducts">0</h2><small class="text-muted">Total Products</small></div></div>
-                <div class="col-md-3"><div class="stat-card"><h2 class="fw-black text-success mb-0" id="categories">0</h2><small class="text-muted">Categories</small></div></div>
-                <div class="col-md-3"><div class="stat-card"><h2 class="fw-black text-purple mb-0" id="avgRating">0</h2><small class="text-muted">Avg Rating</small></div></div>
-            </div>
-        </div>
-
-        <div id="products-tab" class="tab-content">
-            <h4 class="fw-bold mb-4">📱 All Products</h4>
-            <div class="stat-card p-0 overflow-hidden"><table class="table table-hover mb-0"><thead><tr><th class="px-4 py-3">Product</th><th class="px-4 py-3">Price</th><th class="px-4 py-3">Rating</th><th class="px-4 py-3">Action</th></tr></thead><tbody id="productTable"></tbody></table></div>
-        </div>
-
-        <div id="add-tab" class="tab-content">
-            <h4 class="fw-bold mb-4">➕ Add New Product</h4>
-            <div class="stat-card">
-                <form onsubmit="addProduct(event)" class="row g-3">
-                    <div class="col-md-6"><label class="form-label small fw-semibold">Name *</label><input type="text" id="name" class="form-control" required></div>
-                    <div class="col-md-6"><label class="form-label small fw-semibold">Brand *</label><input type="text" id="brand" class="form-control" required></div>
-                    <div class="col-md-4"><label class="form-label small fw-semibold">Category</label><select id="category" class="form-select"><option value="phone">Phone</option><option value="laptop">Laptop</option><option value="tv">TV</option></select></div>
-                    <div class="col-md-4"><label class="form-label small fw-semibold">Price (₹)</label><input type="number" id="price" class="form-control" required></div>
-                    <div class="col-md-4"><label class="form-label small fw-semibold">Budget</label><select id="budget" class="form-select"><option value="low">Budget</option><option value="mid">Mid</option><option value="high">Premium</option></select></div>
-                    <div class="col-md-4"><label class="form-label small fw-semibold">Image URL</label><input type="text" id="image" class="form-control" placeholder="https://..."></div>
-                    <div class="col-md-4"><label class="form-label small fw-semibold">Rating</label><input type="number" id="rating" class="form-control" value="4.0" step="0.1" min="1" max="5"></div>
-                    <div class="col-md-4"><label class="form-label small fw-semibold">Best Price</label><input type="text" id="bestPrice" class="form-control" placeholder="₹13,499 (Amazon)"></div>
-                    <div class="col-12"><label class="form-label small fw-semibold">Why Best</label><textarea id="whyBest" class="form-control" rows="2"></textarea></div>
-                    <div class="col-md-6"><label class="form-label small fw-semibold">Best For</label><input type="text" id="bestFor" class="form-control"></div>
-                    <div class="col-md-6"><label class="form-label small fw-semibold">Stores (comma separated)</label><input type="text" id="stores" class="form-control" placeholder="Amazon, Flipkart"></div>
-                    <div class="col-md-6"><label class="form-label small fw-semibold">Admin Password *</label><input type="password" id="adminPassword" class="form-control" required></div>
-                    <div class="col-12"><button type="submit" class="btn btn-primary rounded-pill px-5"><i class="fas fa-plus me-1"></i> Add Product</button></div>
-                </form>
-                <div id="addMessage" class="mt-3"></div>
-            </div>
+    
+    <!-- ============ LOGIN PAGE ============ -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-icon"><i class="fas fa-shield-haltered"></i></div>
+            <h2 class="text-center fw-black mb-2">Admin Panel</h2>
+            <p class="text-center text-muted mb-4">Saccha Salesman</p>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-2 border-end-0 rounded-start-3"><i class="fas fa-user text-muted"></i></span>
+                        <input type="text" id="loginUser" class="form-control border-2 border-start-0 rounded-end-3" placeholder="Enter username" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold small">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-2 border-end-0 rounded-start-3"><i class="fas fa-lock text-muted"></i></span>
+                        <input type="password" id="loginPass" class="form-control border-2 border-start-0 rounded-end-3" placeholder="Enter password" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary-custom w-100 py-3">
+                    <i class="fas fa-sign-in-alt me-2"></i> Login to Dashboard
+                </button>
+            </form>
+            <div id="loginError" class="alert alert-danger mt-3 rounded-3 d-none"></div>
         </div>
     </div>
 
-    <script>
-        let allProducts=[];
-        async function loadProducts(){try{const r=await fetch('/api/products');const d=await r.json();allProducts=d.data;updateDashboard();renderTable()}catch(e){}}
-        function updateDashboard(){document.getElementById('totalProducts').textContent=allProducts.length;const cats=[...new Set(allProducts.map(p=>p.category))];document.getElementById('categories').textContent=cats.length;const avg=allProducts.length?(allProducts.reduce((s,p)=>s+p.rating,0)/allProducts.length).toFixed(1):0;document.getElementById('avgRating').textContent=avg}
-        function renderTable(){document.getElementById('productTable').innerHTML=allProducts.map(p=>`<tr><td class="px-4"><strong>${p.name}</strong><br><small>${p.brand}</small></td><td class="px-4">₹${p.price?.toLocaleString('en-IN')}</td><td class="px-4">⭐${p.rating}</td><td class="px-4"><button class="btn btn-sm btn-outline-danger rounded-pill" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`).join('')}
-        async function addProduct(e){e.preventDefault();const pwd=document.getElementById('adminPassword').value;const product={name:document.getElementById('name').value,brand:document.getElementById('brand').value,category:document.getElementById('category').value,price:parseInt(document.getElementById('price').value),budget:document.getElementById('budget').value,image:document.getElementById('image').value||'https://placehold.co/400x400?text=Product',rating:parseFloat(document.getElementById('rating').value),whyBest:document.getElementById('whyBest').value,bestFor:document.getElementById('bestFor').value,bestPrice:document.getElementById('bestPrice').value,stores:document.getElementById('stores').value.split(',').map(s=>s.trim()).filter(Boolean)};try{const r=await fetch('/api/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd,...product})});const d=await r.json();document.getElementById('addMessage').innerHTML=d.success?'<div class="alert alert-success">✅ Added!</div>':'<div class="alert alert-danger">❌ '+d.message+'</div>';if(d.success){document.querySelector('form').reset();loadProducts()}}catch(err){document.getElementById('addMessage').innerHTML='<div class="alert alert-danger">❌ Failed</div>'}}
-        async function deleteProduct(id){const pwd=prompt('Enter admin password:');if(!pwd)return;try{const r=await fetch('/api/products/'+id,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});const d=await r.json();if(d.success){loadProducts();alert('✅ Deleted!')}else alert('❌ '+d.message)}catch(e){}}
-        function showTab(tab,el){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active'));document.getElementById(tab+'-tab').classList.add('active');el.classList.add('active')}
-        loadProducts();
-    </script>
+    <!-- ============ DASHBOARD ============ -->
+    <div id="dashboardPage" style="display:none;">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon"><i class="fas fa-shield-haltered"></i></div>
+                <div>
+                    <strong class="text-primary">SACCHA</strong>
+                    <small class="d-block text-muted" style="font-size:11px;">Admin Panel</small>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" onclick="switchTab('dashboard')"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a class="sidebar-link" onclick="switchTab('products')"><i class="fas fa-mobile-alt"></i> Products <span class="sidebar-badge" id="productCount">0</span></a>
+                <a class="sidebar-link" onclick="switchTab('add')"><i class="fas fa-plus-circle"></i> Add Product</a>
+                <a class="sidebar-link" onclick="switchTab('featured')"><i class="fas fa-star"></i> Featured</a>
+                <a class="sidebar-link" onclick="switchTab('settings')"><i class="fas fa-cog"></i> Settings</a>
+                <a class="sidebar-link" onclick="switchTab('analytics')"><i class="fas fa-chart-bar"></i> Analytics</a>
+                <hr>
+                <a class="sidebar-link" href="/" target="_blank"><i class="fas fa-external-link-alt"></i> View Website</a>
+                <a class="sidebar-link text-danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div>
+                    <h1 id="pageTitle">📊 Dashboard</h1>
+                    <p class="text-muted mb-0" id="pageSubtitle">Welcome back, Admin</p>
+                </div>
+                <div class="d-flex gap-3 align-items-center">
+                    <span class="text-muted small" id="currentTime"></span>
+                    <button class="btn btn-light rounded-3 d-lg-none" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- ===== DASHBOARD TAB ===== -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="row g-4 mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="icon bg-primary bg-opacity-10 text-primary"><i class="fas fa-mobile-alt"></i></div>
+                            <div class="value" id="statTotal">0</div>
+                            <div class="label">Total Products</div>
+                            <div class="trend trend-up mt-2"><i class="fas fa-arrow-up"></i> Active</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="icon bg-success bg-opacity-10 text-success"><i class="fas fa-check-circle"></i></div>
+                            <div class="value" id="statActive">0</div>
+                            <div class="label">Active Products</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="icon bg-warning bg-opacity-10 text-warning"><i class="fas fa-star"></i></div>
+                            <div class="value" id="statFeatured">0</div>
+                            <div class="label">Featured</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card">
+                            <div class="icon bg-purple bg-opacity-10 text-purple" style="color:#7c3aed;"><i class="fas fa-eye"></i></div>
+                            <div class="value" id="statViews">0</div>
+                            <div class="label">Total Views</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="card-custom">
+                            <div class="card-header-custom"><h5 class="fw-bold mb-0">📱 Recent Products</h5></div>
+                            <div class="card-body-custom p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-custom mb-0">
+                                        <thead><tr><th>Product</th><th>Price</th><th>Rating</th><th>Status</th><th>Views</th></tr></thead>
+                                        <tbody id="recentProducts"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card-custom">
+                            <div class="card-header-custom"><h5 class="fw-bold mb-0">📊 Quick Stats</h5></div>
+                            <div class="card-body-custom" id="quickStats"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== PRODUCTS TAB ===== -->
+            <div id="tab-products" class="tab-content">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <h5 class="fw-bold mb-0">📱 All Products</h5>
+                        <div class="d-flex gap-2">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control" placeholder="Search products..." oninput="filterProductTable()" id="productSearch">
+                            </div>
+                            <select class="form-select-custom" style="width:150px;" onchange="filterProductTable()" id="productCategoryFilter">
+                                <option value="all">All Categories</option>
+                                <option value="phone">Phones</option>
+                                <option value="laptop">Laptops</option>
+                                <option value="tv">TVs</option>
+                            </select>
+                            <button class="btn btn-primary-custom" onclick="switchTab('add')"><i class="fas fa-plus me-1"></i> Add</button>
+                        </div>
+                    </div>
+                    <div class="card-body-custom p-0">
+                        <div class="table-responsive">
+                            <table class="table table-custom mb-0">
+                                <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Rating</th><th>Status</th><th>Views</th><th>Actions</th></tr></thead>
+                                <tbody id="allProductsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== ADD PRODUCT TAB ===== -->
+            <div id="tab-add" class="tab-content">
+                <div class="card-custom">
+                    <div class="card-header-custom"><h5 class="fw-bold mb-0">➕ Add New Product</h5></div>
+                    <div class="card-body-custom">
+                        <form id="addProductForm" onsubmit="handleAddProduct(event)" class="row g-3">
+                            <div class="col-md-6"><label class="form-label fw-semibold small">Product Name *</label><input type="text" id="addName" class="form-control-custom w-100" required></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold small">Brand *</label><input type="text" id="addBrand" class="form-control-custom w-100" required></div>
+                            <div class="col-md-3"><label class="form-label fw-semibold small">Category *</label><select id="addCategory" class="form-select-custom w-100"><option value="phone">Phone</option><option value="laptop">Laptop</option><option value="tv">TV</option></select></div>
+                            <div class="col-md-3"><label class="form-label fw-semibold small">Price (₹) *</label><input type="number" id="addPrice" class="form-control-custom w-100" required></div>
+                            <div class="col-md-3"><label class="form-label fw-semibold small">Budget</label><select id="addBudget" class="form-select-custom w-100"><option value="low">Budget</option><option value="mid">Mid</option><option value="high">Premium</option></select></div>
+                            <div class="col-md-3"><label class="form-label fw-semibold small">Rating</label><input type="number" id="addRating" class="form-control-custom w-100" value="4.0" step="0.1" min="1" max="5"></div>
+                            <div class="col-12"><label class="form-label fw-semibold small">Image URL</label><input type="url" id="addImage" class="form-control-custom w-100" placeholder="https://images.unsplash.com/..."></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold small">Online Price</label><input type="text" id="addOnlinePrice" class="form-control-custom w-100" placeholder="₹13,499"></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold small">Offline Price Range</label><input type="text" id="addOfflinePrice" class="form-control-custom w-100" placeholder="₹14,499 - ₹15,999"></div>
+                            <div class="col-12"><label class="form-label fw-semibold small">Why Best</label><textarea id="addWhyBest" class="form-control-custom w-100" rows="2"></textarea></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold small">Best For</label><input type="text" id="addBestFor" class="form-control-custom w-100"></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold small">Stores (comma separated)</label><input type="text" id="addStores" class="form-control-custom w-100" placeholder="Amazon, Flipkart, Croma"></div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="addFeatured">
+                                    <label class="form-check-label small fw-semibold">Featured Product</label>
+                                </div>
+                            </div>
+                            <div class="col-12"><button type="submit" class="btn btn-primary-custom px-5 py-3"><i class="fas fa-plus me-2"></i>Add Product</button></div>
+                        </form>
+                        <div id="addMessage" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== FEATURED TAB ===== -->
+            <div id="tab-featured" class="tab-content">
+                <div class="card-custom">
+                    <div class="card-header-custom"><h5 class="fw-bold mb-0">⭐ Featured Products</h5></div>
+                    <div class="card-body-custom">
+                        <div class="row g-4" id="featuredProducts"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== SETTINGS TAB ===== -->
+            <div id="tab-settings" class="tab-content">
+                <div class="card-custom">
+                    <div class="card-header-custom"><h5 class="fw-bold mb-0">⚙️ Website Settings</h5></div>
+                    <div class="card-body-custom">
+                        <form onsubmit="handleSaveSettings(event)" class="row g-3">
+                            <div class="col-md-6"><label class="form-label fw-semibold small">Site Name</label><input type="text" id="siteName" class="form-control-custom w-100"></div>
+                            <div class="col-md-6"><label class="form-label fw-semibold small">Update Frequency (days)</label><input type="number" id="updateFreq" class="form-control-custom w-100" value="10"></div>
+                            <div class="col-12"><button type="submit" class="btn btn-primary-custom"><i class="fas fa-save me-2"></i>Save Settings</button></div>
+                        </form>
+                        <div id="settingsMessage" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== ANALYTICS TAB ===== -->
+            <div id="tab-analytics" class="tab-content">
+                <div class="card-custom">
+                    <div class="card-header-custom"><h5 class="fw-bold mb-0">📈 Analytics</h5></div>
+                    <div class="card-body-custom">
+                        <div class="row g-4" id="analyticsData">
+                            <div class="col-md-4"><div class="stat-card text-center"><div class="value" id="analyticsTotal">0</div><div class="label">Total Products</div></div></div>
+                            <div class="col-md-4"><div class="stat-card text-center"><div class="value" id="analyticsViews">0</div><div class="label">Total Views</div></div></div>
+                            <div class="col-md-4"><div class="stat-card text-center"><div class="value" id="analyticsAvgRating">0</div><div class="label">Average Rating</div></div></div>
+                        </div>
+                        <h6 class="fw-bold mt-4 mb-3">🏆 Most Popular Products</h6>
+                        <div id="popularProducts" class="row g-3"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
 </body>
 </html>
