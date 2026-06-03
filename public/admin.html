@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Admin Panel | Saccha Salesman</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root{--primary:#2563eb}
+        body{background:#f8fafc;font-family:'Inter',sans-serif}
+        .sidebar{width:250px;min-height:100vh;background:#fff;border-right:1px solid #e5e7eb;position:fixed;left:0;top:0}
+        .sidebar a{display:flex;align-items:center;gap:10px;padding:12px 20px;color:#475569;text-decoration:none;font-weight:500;border-radius:12px;margin:4px 12px;font-size:14px;transition:all .2s}
+        .sidebar a:hover,.sidebar a.active{background:#eff6ff;color:var(--primary)}
+        .main{margin-left:250px;padding:30px}
+        .stat-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e5e7eb}
+        .tab-content{display:none}
+        .tab-content.active{display:block}
+        table th{font-size:12px;text-transform:uppercase;color:#64748b;font-weight:600;background:#f8fafc}
+    </style>
+</head>
+<body>
+    <div class="sidebar d-flex flex-column p-3">
+        <div class="d-flex align-items-center gap-2 px-3 mb-4 mt-2">
+            <div class="rounded-2 d-flex align-items-center justify-content-center" style="width:36px;height:36px;background:var(--primary)"><i class="fas fa-shield-haltered text-white"></i></div>
+            <div><strong class="text-primary">SACCHA</strong><br><small class="text-muted">Admin Panel</small></div>
+        </div>
+        <a href="#" class="active" onclick="showTab('dashboard',this)"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="#" onclick="showTab('products',this)"><i class="fas fa-mobile-alt"></i> All Products</a>
+        <a href="#" onclick="showTab('add',this)"><i class="fas fa-plus-circle"></i> Add Product</a>
+        <div class="mt-auto px-3 py-3 border-top"><a href="/" class="text-muted text-decoration-none small"><i class="fas fa-arrow-left me-1"></i> View Website</a></div>
+    </div>
+
+    <div class="main">
+        <div id="dashboard-tab" class="tab-content active">
+            <h4 class="fw-bold mb-4">📊 Dashboard</h4>
+            <div class="row g-3 mb-4">
+                <div class="col-md-3"><div class="stat-card"><h2 class="fw-black text-primary mb-0" id="totalProducts">0</h2><small class="text-muted">Total Products</small></div></div>
+                <div class="col-md-3"><div class="stat-card"><h2 class="fw-black text-success mb-0" id="categories">0</h2><small class="text-muted">Categories</small></div></div>
+                <div class="col-md-3"><div class="stat-card"><h2 class="fw-black text-purple mb-0" id="avgRating">0</h2><small class="text-muted">Avg Rating</small></div></div>
+            </div>
+        </div>
+
+        <div id="products-tab" class="tab-content">
+            <h4 class="fw-bold mb-4">📱 All Products</h4>
+            <div class="stat-card p-0 overflow-hidden"><table class="table table-hover mb-0"><thead><tr><th class="px-4 py-3">Product</th><th class="px-4 py-3">Price</th><th class="px-4 py-3">Rating</th><th class="px-4 py-3">Action</th></tr></thead><tbody id="productTable"></tbody></table></div>
+        </div>
+
+        <div id="add-tab" class="tab-content">
+            <h4 class="fw-bold mb-4">➕ Add New Product</h4>
+            <div class="stat-card">
+                <form onsubmit="addProduct(event)" class="row g-3">
+                    <div class="col-md-6"><label class="form-label small fw-semibold">Name *</label><input type="text" id="name" class="form-control" required></div>
+                    <div class="col-md-6"><label class="form-label small fw-semibold">Brand *</label><input type="text" id="brand" class="form-control" required></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Category</label><select id="category" class="form-select"><option value="phone">Phone</option><option value="laptop">Laptop</option><option value="tv">TV</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Price (₹)</label><input type="number" id="price" class="form-control" required></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Budget</label><select id="budget" class="form-select"><option value="low">Budget</option><option value="mid">Mid</option><option value="high">Premium</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Image URL</label><input type="text" id="image" class="form-control" placeholder="https://..."></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Rating</label><input type="number" id="rating" class="form-control" value="4.0" step="0.1" min="1" max="5"></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Best Price</label><input type="text" id="bestPrice" class="form-control" placeholder="₹13,499 (Amazon)"></div>
+                    <div class="col-12"><label class="form-label small fw-semibold">Why Best</label><textarea id="whyBest" class="form-control" rows="2"></textarea></div>
+                    <div class="col-md-6"><label class="form-label small fw-semibold">Best For</label><input type="text" id="bestFor" class="form-control"></div>
+                    <div class="col-md-6"><label class="form-label small fw-semibold">Stores (comma separated)</label><input type="text" id="stores" class="form-control" placeholder="Amazon, Flipkart"></div>
+                    <div class="col-md-6"><label class="form-label small fw-semibold">Admin Password *</label><input type="password" id="adminPassword" class="form-control" required></div>
+                    <div class="col-12"><button type="submit" class="btn btn-primary rounded-pill px-5"><i class="fas fa-plus me-1"></i> Add Product</button></div>
+                </form>
+                <div id="addMessage" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allProducts=[];
+        async function loadProducts(){try{const r=await fetch('/api/products');const d=await r.json();allProducts=d.data;updateDashboard();renderTable()}catch(e){}}
+        function updateDashboard(){document.getElementById('totalProducts').textContent=allProducts.length;const cats=[...new Set(allProducts.map(p=>p.category))];document.getElementById('categories').textContent=cats.length;const avg=allProducts.length?(allProducts.reduce((s,p)=>s+p.rating,0)/allProducts.length).toFixed(1):0;document.getElementById('avgRating').textContent=avg}
+        function renderTable(){document.getElementById('productTable').innerHTML=allProducts.map(p=>`<tr><td class="px-4"><strong>${p.name}</strong><br><small>${p.brand}</small></td><td class="px-4">₹${p.price?.toLocaleString('en-IN')}</td><td class="px-4">⭐${p.rating}</td><td class="px-4"><button class="btn btn-sm btn-outline-danger rounded-pill" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`).join('')}
+        async function addProduct(e){e.preventDefault();const pwd=document.getElementById('adminPassword').value;const product={name:document.getElementById('name').value,brand:document.getElementById('brand').value,category:document.getElementById('category').value,price:parseInt(document.getElementById('price').value),budget:document.getElementById('budget').value,image:document.getElementById('image').value||'https://placehold.co/400x400?text=Product',rating:parseFloat(document.getElementById('rating').value),whyBest:document.getElementById('whyBest').value,bestFor:document.getElementById('bestFor').value,bestPrice:document.getElementById('bestPrice').value,stores:document.getElementById('stores').value.split(',').map(s=>s.trim()).filter(Boolean)};try{const r=await fetch('/api/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd,...product})});const d=await r.json();document.getElementById('addMessage').innerHTML=d.success?'<div class="alert alert-success">✅ Added!</div>':'<div class="alert alert-danger">❌ '+d.message+'</div>';if(d.success){document.querySelector('form').reset();loadProducts()}}catch(err){document.getElementById('addMessage').innerHTML='<div class="alert alert-danger">❌ Failed</div>'}}
+        async function deleteProduct(id){const pwd=prompt('Enter admin password:');if(!pwd)return;try{const r=await fetch('/api/products/'+id,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});const d=await r.json();if(d.success){loadProducts();alert('✅ Deleted!')}else alert('❌ '+d.message)}catch(e){}}
+        function showTab(tab,el){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active'));document.getElementById(tab+'-tab').classList.add('active');el.classList.add('active')}
+        loadProducts();
+    </script>
+</body>
+</html>

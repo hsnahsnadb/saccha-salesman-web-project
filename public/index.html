@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SACCHA SALESMAN | Best Gadget Picks India</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Nastaliq+Urdu:wght@400;700&family=Tiro+Devanagari+Hindi&family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="preloader"><div class="preloader-content"><div class="preloader-icon"><i class="fas fa-shield-haltered"></i></div><p>Saccha Salesman</p></div></div>
+
+    <div class="modal fade" id="welcomeModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 rounded-4 overflow-hidden">
+                <div class="modal-gradient-bar"></div>
+                <div class="modal-header border-0"><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body text-center p-4 p-md-5">
+                    <div class="mb-4"><span class="warning-icon"><i class="fas fa-exclamation-triangle text-warning"></i></span></div>
+                    <div class="urdu-box"><p class="urdu-text">گھر سے ریسرچ کر کے جائیں، دکاندار کی کنونسنگ سکل کے چنگل میں نہ پھنسیں اور EMI سے بہت دور رہیں، ورنہ سامان آپ کو مہنگا پڑ سکتا ہے</p></div>
+                    <div class="hindi-box"><p class="hindi-text">घर से रिसर्च कर के जाएँ, दुकानदार की कन्विंसिंग स्किल के चंगुल में न फँसें और EMI से बहुत दूर रहें, वरना सामान आपको महँगा पड़ सकता है।</p></div>
+                    <p class="text-muted small fst-italic mb-4">ख़ैर, बेवक़ूफ़ों को कौन समझा सकता है... <strong class="text-dark">पर आप समझदार हैं!</strong> 😊</p>
+                    <button class="btn btn-primary btn-lg px-5 py-3 rounded-4 fw-bold w-100 modal-cta" data-bs-dismiss="modal"><i class="fas fa-check-circle me-2"></i> समझ गया! आगे बढ़ें</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg fixed-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#"><div class="brand-icon"><i class="fas fa-shield-haltered text-white"></i></div><span class="brand-text">SACCHA</span><span class="brand-sub">SALESMAN</span></a>
+            <button class="navbar-toggler border-0" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto gap-1">
+                    <li class="nav-item"><a class="nav-link px-3 py-2 rounded-3" href="#hero">Home</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 py-2 rounded-3" href="#picks">Best Picks</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 py-2 rounded-3" href="#process">Process</a></li>
+                    <li class="nav-item"><button onclick="toggleWishlist()" class="btn btn-light rounded-3 position-relative"><i class="far fa-bookmark"></i><span id="wishlistCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span></button></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="container text-center py-5" data-aos="fade-up">
+            <div class="live-badge"><span class="live-dot"></span><span>Updated <strong id="lastUpdated"></strong></span></div>
+            <h1 class="hero-title"><span class="gradient-text">SACCHA</span><span class="dark-text">SALESMAN</span></h1>
+            <p class="hero-subtitle">We <span class="text-primary">Don't Sell</span>. We Recommend.</p>
+            <p class="hero-desc">Every 10 days we survey offline & online to find the absolute best products. No commissions. No bias.</p>
+            <div class="hero-btns"><a href="#picks" class="btn btn-primary btn-lg px-4 py-3 rounded-4 fw-bold btn-gradient">Explore Best Picks <i class="fas fa-arrow-right ms-2"></i></a></div>
+            <div class="row g-3 justify-content-center stats-row">
+                <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-number text-primary counter" data-target="15000">0</div><small>Smart Shoppers</small></div></div>
+                <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-number text-indigo counter" data-target="8000">0</div><small>Tested</small></div></div>
+                <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-number text-purple counter" data-target="100">0</div><small>% Honest</small></div></div>
+                <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-number text-cyan counter" data-target="50">0</div><small>Cities</small></div></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="marquee-bar"><div class="marquee-content"><span>⚠️ दुकानदार की कन्विंसिंग स्किल के चंगुल में न फँसें! घर से रिसर्च कर के जाएँ और सही सामान लें सही बजट में 🛡️</span><span>⚠️ दुकानदार की कन्विंसिंग स्किल के चंगुल में न फँसें! घर से रिसर्च कर के जाएँ और सही सामान लें सही बजट में 🛡️</span></div></div>
+
+    <section id="picks"><div class="container py-4">
+        <div class="text-center mb-5" data-aos="fade-up"><span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold mb-3">Updated Every 10 Days</span><h2 class="display-5 fw-black mb-2">Best Picks <span class="text-primary">Right Now</span></h2></div>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+            <button class="filter-btn active" onclick="filterProducts('all')">All</button>
+            <button class="filter-btn" onclick="filterProducts('phone')"><i class="fas fa-mobile-alt me-1"></i>Phones</button>
+            <button class="filter-btn" onclick="filterProducts('laptop')"><i class="fas fa-laptop me-1"></i>Laptops</button>
+            <button class="filter-btn" onclick="filterProducts('tv')"><i class="fas fa-tv me-1"></i>TVs</button>
+        </div>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-5">
+            <button class="btn btn-success rounded-pill px-4 py-2 fw-semibold text-white" onclick="filterByBudget('low')">💰 Under ₹20K</button>
+            <button class="btn btn-primary rounded-pill px-4 py-2 fw-semibold" onclick="filterByBudget('mid')">💎 ₹20K-60K</button>
+            <button class="btn btn-purple rounded-pill px-4 py-2 fw-semibold text-white" onclick="filterByBudget('high')">👑 Above ₹60K</button>
+        </div>
+        <div id="productsGrid" class="row g-4"></div>
+        <div id="loading" class="text-center py-5 d-none"><div class="spinner-border text-primary mb-3"></div><p>Finding best picks...</p></div>
+    </div></section>
+
+    <section id="process"><div class="container py-4"><div class="text-center mb-5"><h2 class="display-5 fw-black">How We <span class="text-indigo">Research</span></h2></div><div class="row g-4"><div class="col-sm-6 col-lg-3"><div class="process-card"><div class="process-num bg-blue">1</div><h5>Offline Survey</h5><p>Visit 50+ stores across India for real prices & testing.</p></div></div><div class="col-sm-6 col-lg-3"><div class="process-card"><div class="process-num bg-indigo">2</div><h5>Online Tracking</h5><p>Monitor 20+ websites for best deals & price history.</p></div></div><div class="col-sm-6 col-lg-3"><div class="process-card"><div class="process-num bg-purple">3</div><h5>Review Mining</h5><p>Analyze 5000+ verified reviews & expert opinions.</p></div></div><div class="col-sm-6 col-lg-3"><div class="process-card"><div class="process-num bg-cyan">4</div><h5>Final Pick</h5><p>Team publishes the single best recommendation.</p></div></div></div></div></section>
+
+    <footer><div class="footer-bar"></div><div class="container py-5"><div class="row g-4"><div class="col-md-5"><div class="d-flex align-items-center gap-2 mb-3"><div class="footer-brand-icon"><i class="fas fa-shield-haltered text-white"></i></div><span class="fs-5 fw-black text-primary">SACCHA</span><span class="fs-5 fw-bold text-white">SALESMAN</span></div><p class="text-muted small">We don't sell. We research & recommend the best. Updated every 10 days.</p></div><div class="col-md-3"><h5 class="text-white fw-bold mb-3">Links</h5><ul class="list-unstyled small"><li class="mb-2"><a href="#hero" class="footer-link">Home</a></li><li class="mb-2"><a href="#picks" class="footer-link">Best Picks</a></li><li class="mb-2"><a href="#process" class="footer-link">Process</a></li><li class="mb-2"><a href="/admin" class="footer-link">Admin</a></li></ul></div><div class="col-md-4 text-center"><h5 class="text-white fw-bold mb-3">Researched with ❤️ in</h5><div id="globe-container"></div><p class="lucknow-text">Lucknow, India</p></div></div></div></footer>
+
+    <div class="offcanvas offcanvas-end" id="wishlistSidebar"><div class="offcanvas-header border-bottom"><h5 class="offcanvas-title fw-bold"><i class="far fa-bookmark text-primary me-2"></i>Saved Picks</h5><button class="btn-close" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body" id="wishlistItems"><p class="text-center text-muted py-5">No saved picks yet.</p></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
